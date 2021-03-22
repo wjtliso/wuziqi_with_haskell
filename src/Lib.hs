@@ -23,6 +23,7 @@ play b = do
   putStr "> White trun (O)"
   winput <- getLine
   wb <- insertIntoBoard b winput White
+  -- TODO:判断和棋
   guard (not $ checkWin wb White)
   putStr "> Black trun (X)"
   binput <- getLine
