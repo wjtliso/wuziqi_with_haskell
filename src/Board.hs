@@ -13,9 +13,13 @@ import qualified Range as R
 import Point
 
 data Board = Board (M.Map Point Player)
+  deriving (Show)
 
 empty :: Board
 empty = Board M.empty
+
+insertPoint :: Board -> Point -> Player -> Either Error Board
+insertPoint (Board b) point player = undefined
 
 isExist :: Board -> Point -> Bool
 isExist (Board b) p = case M.lookup p b of

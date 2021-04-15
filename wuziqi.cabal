@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: de5f393ea5b8aae6574d2f18a0769ea027589d00b3ace20439a9f4ae0affd0d7
+-- hash: dd5f36b9290e6e05a8763fd6fbf1a82c78a20495715a4a3dce68138d6cfe6700
 
 name:           wuziqi
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
       Player
       Point
       Range
+      Turn
   other-modules:
       Paths_wuziqi
   hs-source-dirs:
