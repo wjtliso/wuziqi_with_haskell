@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: dd5f36b9290e6e05a8763fd6fbf1a82c78a20495715a4a3dce68138d6cfe6700
+-- hash: 79c3941cff2a3d03b731f5e8943fffd5861886eb67a08b88cf7733a9a5759ab8
 
 name:           wuziqi
 version:        0.1.0.0
@@ -28,12 +28,15 @@ source-repository head
 library
   exposed-modules:
       Board
+      Column
       Error
+      Game
       Lib
-      Player
       Point
       Range
-      Turn
+      Row
+      Side
+      Stone
   other-modules:
       Paths_wuziqi
   hs-source-dirs:

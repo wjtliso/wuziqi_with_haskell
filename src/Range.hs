@@ -2,9 +2,12 @@ module Range
   (
     Range,
     range,
-    range,
     next,
     back,
+    Range.max,
+    validList,
+    toInt,
+    first,
   ) where
 
 data Range = Range Int
@@ -35,3 +38,12 @@ back :: Range -> Maybe Range
 back (Range i) = if i > Range.min
   then Just $ Range (i - 1)
   else Nothing
+
+validList :: [Range]
+validList = fmap Range [Range.min..Range.max]
+
+toInt :: Range -> Int
+toInt (Range i) = i
+
+first :: Range
+first = Range 1

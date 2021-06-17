@@ -2,44 +2,86 @@ module Board
   (
     Board,
     empty,
+    show,
     checkWin,
+    insertPoint,
   ) where
 
+import Prelude hiding (show)
 import qualified Data.Map.Strict as M
 import Data.Maybe
-import Player
+import Stone (Stone)
+import qualified Stone as Stone (toMark)
 import Error
-import qualified Range as R
-import Point
+import Point (Point(..))
+import Column (Column)
+import qualified Column as Column (validList, toInt, toString)
+import Row (Row)
+import qualified Row as Row (validList, toString)
+import qualified Point as Point (
+  nextOfSameColumn,
+  backOfSameColumn,
+  nextOfSameRow,
+  backOfSameRow,
+  nextColumnNextRow,
+  nextColumnBackRow,
+  backColumnNextRow,
+  backColumnBackRow,
+  intToPoint,
+  allOfSameColumn)
+import Data.Char (ord, chr)
+import qualified Range as Range (max)
+import qualified Range as Range (validList, toInt)
 
-data Board = Board (M.Map Point Player)
+data Board = Board (M.Map Point Stone)
   deriving (Show)
 
 empty :: Board
 empty = Board M.empty
-
-insertPoint :: Board -> Point -> Player -> Either Error Board
-insertPoint (Board b) point player = undefined
 
 isExist :: Board -> Point -> Bool
 isExist (Board b) p = case M.lookup p b of
   Just _ -> True
   _ -> False
 
-getPlayer :: Board -> Point -> Maybe Player
-getPlayer (Board b) p = M.lookup p b
+getStone :: Board -> Point -> Maybe Stone
+getStone (Board b) p = M.lookup p b
 
-checkWin :: Board -> Point -> Player -> Bool
-checkWin b po pl = foldr (\(f1, f2) re -> if re then re else isNPointContinue b po pl (f1, f2) 5) False [(R.next, Just), (R.next, R.next), (R.next, R.back), (Just, R.next), (R.back, Just), (R.back, R.back), (R.back, R.next), (Just, R.back)]
+checkWin :: Board -> Point -> Stone -> Bool
+checkWin b po pl = foldr (\f re -> if re then re else isNPointContinue b po pl f 5) False [Point.nextOfSameColumn, Point.backOfSameColumn, Point.nextOfSameRow, Point.backOfSameRow, Point.nextColumnNextRow, Point.nextColumnBackRow, Point.backColumnNextRow, Point.backColumnBackRow]
 
-isNPointContinue :: Board -> Point　-> Player -> (R.Range -> Maybe R.Range, R.Range -> Maybe R.Range) -> Int -> Bool
-isNPointContinue b (Point c r) p (f1, f2) n =
+isNPointContinue :: Board -> Point　-> Stone -> (Point -> Maybe Point) -> Int -> Bool
+isNPointContinue b p s f n =
   if n == 0
   then True
-  else case getPlayer b (Point c r) of
-    Nothing -> False
-    Just _p -> if _p == p
-      then case (f1 c, f2 r) of
-        (Just cc, Just rr) -> isNPointContinue b (Point cc rr) p (f1, f2) (n - 1)
-        _ -> False
-      else False
+  else
+    if isSameStone b p s
+    then case f p of
+      Just pp -> isNPointContinue b pp s f (n - 1)
+      _ -> False
+    else False
+  where
+    isSameStone :: Board -> Point -> Stone -> Bool
+    isSameStone b p s = case getStone b p of
+      Nothing -> False
+      Just _s -> _s == s
+
+insertPoint :: Board -> Point -> Stone -> Either Error Board
+insertPoint (Board b) p s =
+  if isExist (Board b) p
+  then Left PointExistError
+  else Right $ Board $ M.insert p s b
+
+show :: Board -> String
+show board = header ++ "\n" ++ foldr (\c b -> b ++ columnToStr board c ++ "\n") "" Column.validList
+
+header :: String
+header = foldr (\a b-> b ++ " " ++ Row.toString a ) "" Row.validList
+
+columnToStr :: Board -> Column -> String
+columnToStr board c = Column.toString c ++ foldr (\point b -> b ++ (getPointMark board point) ++ " ") "" (Point.allOfSameColumn c)
+
+getPointMark :: Board -> Point -> String
+getPointMark b p = case getStone b p of
+  Just s -> Stone.toMark s
+  Nothing -> " "

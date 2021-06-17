@@ -3,41 +3,36 @@ module Lib
   ) where
 
 import System.IO
-import Board
-import Player
+import Board (Board)
+import Board as Board (empty, show)
+import Side as Side (sideMessage)
+import Game (State(..), Status(..))
+import Game as Game (runGame, originState, setContinueState, setErrorState)
+import Point as Point (fromString)
+import Error (Error(..))
 import GHC.Base
 import Control.Monad
 
 runPlay :: IO ()
-runPlay = undefined
---runPlay = welcome >> play emptyBoard
+runPlay = welcome >> play (Board.empty, Game.originState)
 
---welcome :: IO()
---welcome = putStrLn $ unlines
---  [ "Wuziqi Version 0.0.1",
---    "CopyRight ???"
---  ]
+welcome :: IO()
+welcome = putStrLn $ unlines
+  [ "Wuziqi Version 0.0.1",
+    "CopyRight ???"
+  ]
 
---play :: Board -> IO ()
---play b = do
---  hSetBuffering stdout NoBuffering 
---  putStr "> White trun (O)"
---  winput <- getLine
---  wb <- insertIntoBoard b winput White
---  -- TODO:判断和棋
---  guard (not $ checkWin wb White)
---  putStr "> Black trun (X)"
---  binput <- getLine
---  bb <- insertIntoBoard wb binput Black
---  guard (not $ checkWin bb Black)
---  play bb
---
---insertIntoBoard :: Board -> String -> Player -> IO Board
---insertIntoBoard b s p = case insertStringToBoard b s p of
---  Left e -> do
---    putStr "> Input error! Try again!"
---    input <- getLine
---    insertIntoBoard b input p
---  Right nb -> do
---    putStr $ Board.showBoard nb
---    returnIO nb
+play :: (Board, State) -> IO ()
+play (b, s) = (putStr $ Board.show b) >> case getStatus s of
+  BlackWin -> putStr $ "Black Win !"
+  WhiteWin -> putStr $ "White Win !"
+  Draw -> putStr $ "Draw !"
+  Error -> (putStr $ "Error !\n") >> play (b, Game.setContinueState s)
+  _ -> do
+    hSetBuffering stdout NoBuffering
+    putStr $ Side.sideMessage $ getSide s
+    input <- getLine
+    let maybePoint = Point.fromString input
+    case maybePoint of
+      Just point -> play $ runGame (b, s) point
+      Nothing -> play (b, Game.setErrorState InputFormatError s)
