@@ -22,7 +22,7 @@ fromInt i = fmap Row (Range.range i)
 fromChar :: Char -> Maybe Row
 fromChar c = fmap Row (Range.range (ord c - ord 'A' + 1))
 
-next :: Row -> Maybe Rowb
+next :: Row -> Maybe Row
 next (Row r) = fmap Row (Range.next r)
 
 back :: Row -> Maybe Row

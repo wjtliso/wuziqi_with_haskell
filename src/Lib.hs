@@ -7,7 +7,7 @@ import Board (Board)
 import Board as Board (empty, show)
 import Side as Side (sideMessage)
 import Game (State(..), Status(..))
-import Game as Game (runGame, originState, setContinueState, setErrorState)
+import Game as Game (runGame, originState)
 import Point as Point (fromString)
 import Error (Error(..))
 import GHC.Base
@@ -27,12 +27,13 @@ play (b, s) = (putStr $ Board.show b) >> case getStatus s of
   BlackWin -> putStr $ "Black Win !"
   WhiteWin -> putStr $ "White Win !"
   Draw -> putStr $ "Draw !"
-  Error -> (putStr $ "Error !\n") >> play (b, Game.setContinueState s)
   _ -> do
     hSetBuffering stdout NoBuffering
     putStr $ Side.sideMessage $ getSide s
     input <- getLine
     let maybePoint = Point.fromString input
     case maybePoint of
-      Just point -> play $ runGame (b, s) point
-      Nothing -> play (b, Game.setErrorState InputFormatError s)
+      Just point -> case runGame (b, s) point of
+        Right bs -> play bs
+        Left e -> (putStr $ (Prelude.show e) ++ "\n" ) >> play (b, s)
+      Nothing -> (putStr $ "Error !\n") >> play (b, s)

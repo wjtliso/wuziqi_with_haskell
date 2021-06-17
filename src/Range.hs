@@ -30,14 +30,10 @@ range i = if Range.between i
   else Nothing
 
 next :: Range -> Maybe Range
-next (Range i) = if i < Range.max
-  then Just $ Range (i + 1)
-  else Nothing
+next (Range i) = range $ i + 1
 
 back :: Range -> Maybe Range
-back (Range i) = if i > Range.min
-  then Just $ Range (i - 1)
-  else Nothing
+back (Range i) = range $ i - 1
 
 validList :: [Range]
 validList = fmap Range [Range.min..Range.max]

@@ -47,8 +47,18 @@ isExist (Board b) p = case M.lookup p b of
 getStone :: Board -> Point -> Maybe Stone
 getStone (Board b) p = M.lookup p b
 
-checkWin :: Board -> Point -> Stone -> Bool
-checkWin b po pl = foldr (\f re -> if re then re else isNPointContinue b po pl f 5) False [Point.nextOfSameColumn, Point.backOfSameColumn, Point.nextOfSameRow, Point.backOfSameRow, Point.nextColumnNextRow, Point.nextColumnBackRow, Point.backColumnNextRow, Point.backColumnBackRow]
+checkWin :: Board -> Stone -> Bool
+checkWin b s = foldr (\p re -> if re then re else checkWinByPoint b p s) False points
+  where
+    points = pointsOfStone b s
+
+pointsOfStone :: Board -> Stone -> [Point]
+pointsOfStone (Board b) s = map (\(p, _s) -> p) pointStoneList
+  where
+    pointStoneList = filter (\(p, _s) -> _s == s) (M.toList b)
+
+checkWinByPoint :: Board -> Point -> Stone -> Bool
+checkWinByPoint b po s = foldr (\f re -> if re then re else isNPointContinue b po s f 5) False [Point.nextOfSameColumn, Point.backOfSameColumn, Point.nextOfSameRow, Point.backOfSameRow, Point.nextColumnNextRow, Point.nextColumnBackRow, Point.backColumnNextRow, Point.backColumnBackRow]
 
 isNPointContinue :: Board -> Point　-> Stone -> (Point -> Maybe Point) -> Int -> Bool
 isNPointContinue b p s f n =
