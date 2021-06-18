@@ -27,7 +27,6 @@ import qualified Point as Point (
   nextColumnBackRow,
   backColumnNextRow,
   backColumnBackRow,
-  intToPoint,
   allOfSameColumn)
 import Data.Char (ord, chr)
 import qualified Range as Range (max)

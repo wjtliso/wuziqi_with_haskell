@@ -1,7 +1,6 @@
 module Row
 	(
 		Row(..),
-		fromInt,
     next,
     back,
     toString,
@@ -12,15 +11,15 @@ module Row
 import Range (Range)
 import qualified Range as Range (range, next, back, validList, toInt)
 import Data.Char (ord, chr)
+import Error
 
 newtype Row = Row Range
 	deriving (Show, Eq, Ord)
 
-fromInt :: Int -> Maybe Row
-fromInt i = fmap Row (Range.range i)
-
-fromChar :: Char -> Maybe Row
-fromChar c = fmap Row (Range.range (ord c - ord 'A' + 1))
+fromChar :: Char -> Either Error Row
+fromChar c = case Range.range (ord c - ord 'A' + 1) of
+  Just r -> Right $ Row r
+  Nothing -> Left RowFormatError
 
 next :: Row -> Maybe Row
 next (Row r) = fmap Row (Range.next r)

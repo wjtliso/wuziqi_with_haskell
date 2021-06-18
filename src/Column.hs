@@ -1,7 +1,6 @@
 module Column
 	(
 		Column(..),
-		fromInt,
     next,
     back,
     validList,
@@ -13,15 +12,15 @@ module Column
 import Range (Range)
 import qualified Range as Range (range, next, back, validList, toInt)
 import Data.Char (ord, chr)
+import Error
 
 newtype Column = Column Range
 	deriving (Show, Eq, Ord)
 
-fromInt :: Int -> Maybe Column
-fromInt i = fmap Column (Range.range i)
-
-fromChar :: Char -> Maybe Column
-fromChar c = fmap Column (Range.range (ord c - ord 'a' + 1))
+fromChar :: Char -> Either Error Column
+fromChar c = case Range.range (ord c - ord 'a' + 1) of
+  Just c -> Right $ Column c
+  Nothing -> Left ColumnFormatError
 
 next :: Column -> Maybe Column
 next (Column c) = fmap Column (Range.next c)

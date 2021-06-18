@@ -9,22 +9,19 @@ module Point
     nextColumnBackRow,
     backColumnNextRow,
     backColumnBackRow,
-		intToPoint,
     allOfSameColumn,
     fromString,
 	) where
 
 import Column (Column)
-import qualified Column as Column (fromInt, next, back, fromChar)
+import qualified Column as Column (next, back, fromChar)
 import Row (Row)
-import qualified Row as Row (fromInt, next, back, validList, fromChar)
+import qualified Row as Row (next, back, validList, fromChar)
 import Control.Applicative
+import Error
 
 data Point = Point Column Row
 	deriving (Show, Eq, Ord)
-
-intToPoint :: Int -> Int -> Maybe Point
-intToPoint c r = liftA2 Point (Column.fromInt c) (Row.fromInt r)
 
 nextOfSameColumn :: Point -> Maybe Point
 nextOfSameColumn p = nextPoint p Just Row.next
@@ -56,8 +53,8 @@ nextPoint (Point c r) f g = liftA2 Point (f c) (g r)
 allOfSameColumn :: Column -> [Point]
 allOfSameColumn c = fmap (Point c) Row.validList
 
-fromString :: String -> Maybe Point
+fromString :: String -> Either Error Point
 fromString s = case s of
   c : r : [] -> liftA2 Point (Column.fromChar c) (Row.fromChar r)
-  _ -> Nothing
+  _ -> Left InputFormatError
 

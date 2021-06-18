@@ -31,9 +31,7 @@ play (b, s) = (putStr $ Board.show b) >> case getStatus s of
     hSetBuffering stdout NoBuffering
     putStr $ Side.sideMessage $ getSide s
     input <- getLine
-    let maybePoint = Point.fromString input
-    case maybePoint of
-      Just point -> case runGame (b, s) point of
-        Right bs -> play bs
-        Left e -> (putStr $ (Prelude.show e) ++ "\n" ) >> play (b, s)
-      Nothing -> (putStr $ "Error !\n") >> play (b, s)
+    let eitherPoint = Point.fromString input
+    case (runGame (b, s)) =<< eitherPoint of
+      Right bs -> play bs
+      Left e -> (putStr $ (Prelude.show e) ++ "\n" ) >> play (b, s)

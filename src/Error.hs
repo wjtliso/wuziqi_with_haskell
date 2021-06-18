@@ -3,5 +3,5 @@ module Error
     Error(..),
   ) where
 
-data Error = InputFormatError | PointExistError
+data Error = RowFormatError | ColumnFormatError | InputFormatError | PointExistError
   deriving (Show)
