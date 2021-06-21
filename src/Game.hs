@@ -12,7 +12,6 @@ import Stone (Stone)
 import Side (Side(..))
 import qualified Side as Side (next, toStone, originSide)
 import Point (Point)
-import Error (Error(..))
 
 data Status = Continue | Draw | BlackWin | WhiteWin
   deriving (Show, Eq)
@@ -29,12 +28,12 @@ winStatus :: Side -> Status
 winStatus Black = BlackWin
 winStatus White = WhiteWin
 
-runGame :: (Board, State) -> Point -> Either Error (Board, State)
-runGame (b, s) p = case Board.insertPoint b p (currentStone s) of
-    Right bb -> if Board.checkWin bb (currentStone s)
-      then Right (bb, State { getStatus = winStatus $ getSide s, getSide = getSide s })
-      else Right (bb, State { getStatus = Continue, getSide = Side.next $ getSide s })
-    Left e -> Left e
+runGame :: (Board, State) -> Point -> (Board, State)
+runGame (b, s) p = if Board.checkWin newBoard (currentStone s)
+    then (newBoard, State { getStatus = winStatus $ getSide s, getSide = getSide s })
+    else (newBoard, State { getStatus = Continue, getSide = Side.next $ getSide s })
+  where
+    newBoard = Board.insertPoint b p (currentStone s)
 
 originStatus :: Status
 originStatus = Continue

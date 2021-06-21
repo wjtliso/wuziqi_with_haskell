@@ -13,15 +13,19 @@ module Point
     fromString,
 	) where
 
+import Control.Exception
+import Control.Applicative
+
 import Column (Column)
 import qualified Column as Column (next, back, fromChar)
 import Row (Row)
 import qualified Row as Row (next, back, validList, fromChar)
-import Control.Applicative
-import Error
 
 data Point = Point Column Row
 	deriving (Show, Eq, Ord)
+
+data InputFormatException = InputFormatException deriving Show
+instance Exception InputFormatException
 
 nextOfSameColumn :: Point -> Maybe Point
 nextOfSameColumn p = nextPoint p Just Row.next
@@ -53,8 +57,8 @@ nextPoint (Point c r) f g = liftA2 Point (f c) (g r)
 allOfSameColumn :: Column -> [Point]
 allOfSameColumn c = fmap (Point c) Row.validList
 
-fromString :: String -> Either Error Point
+fromString :: String -> Point
 fromString s = case s of
-  c : r : [] -> liftA2 Point (Column.fromChar c) (Row.fromChar r)
-  _ -> Left InputFormatError
+  c : r : [] -> Point (Column.fromChar c) (Row.fromChar r)
+  _ -> throw InputFormatException
 

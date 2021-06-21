@@ -9,10 +9,12 @@ module Board
 
 import Prelude hiding (show)
 import qualified Data.Map.Strict as M
+import Data.Char (ord, chr)
 import Data.Maybe
+import Control.Exception
+
 import Stone (Stone)
 import qualified Stone as Stone (toMark)
-import Error
 import Point (Point(..))
 import Column (Column)
 import qualified Column as Column (validList, toInt, toString)
@@ -28,12 +30,14 @@ import qualified Point as Point (
   backColumnNextRow,
   backColumnBackRow,
   allOfSameColumn)
-import Data.Char (ord, chr)
 import qualified Range as Range (max)
 import qualified Range as Range (validList, toInt)
 
 data Board = Board (M.Map Point Stone)
   deriving (Show)
+
+data PointExistException = PointExistException deriving Show
+instance Exception PointExistException
 
 empty :: Board
 empty = Board M.empty
@@ -75,11 +79,11 @@ isNPointContinue b p s f n =
       Nothing -> False
       Just _s -> _s == s
 
-insertPoint :: Board -> Point -> Stone -> Either Error Board
+insertPoint :: Board -> Point -> Stone -> Board
 insertPoint (Board b) p s =
   if isExist (Board b) p
-  then Left PointExistError
-  else Right $ Board $ M.insert p s b
+  then throw PointExistException
+  else Board $ M.insert p s b
 
 show :: Board -> String
 show board = header ++ "\n" ++ foldr (\c b -> b ++ columnToStr board c ++ "\n") "" Column.validList

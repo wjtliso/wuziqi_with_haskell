@@ -9,18 +9,22 @@ module Column
     fromChar,
 	) where
 
+import Control.Exception
+import Data.Char (ord, chr)
+
 import Range (Range)
 import qualified Range as Range (range, next, back, validList, toInt)
-import Data.Char (ord, chr)
-import Error
+
+data ColumnFormatException = ColumnFormatException deriving Show
+instance Exception ColumnFormatException
 
 newtype Column = Column Range
 	deriving (Show, Eq, Ord)
 
-fromChar :: Char -> Either Error Column
+fromChar :: Char -> Column
 fromChar c = case Range.range (ord c - ord 'a' + 1) of
-  Just c -> Right $ Column c
-  Nothing -> Left ColumnFormatError
+  Just c -> Column c
+  Nothing -> throw ColumnFormatException
 
 next :: Column -> Maybe Column
 next (Column c) = fmap Column (Range.next c)

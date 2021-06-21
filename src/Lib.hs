@@ -3,15 +3,15 @@ module Lib
   ) where
 
 import System.IO
+import Control.Exception
+
 import Board (Board)
-import Board as Board (empty, show)
+import qualified Board as Board (empty, show)
 import Side as Side (sideMessage)
 import Game (State(..), Status(..))
 import Game as Game (runGame, originState)
-import Point as Point (fromString)
-import Error (Error(..))
-import GHC.Base
-import Control.Monad
+import Point (Point)
+import qualified Point as Point (fromString)
 
 runPlay :: IO ()
 runPlay = welcome >> play (Board.empty, Game.originState)
@@ -24,14 +24,24 @@ welcome = putStrLn $ unlines
 
 play :: (Board, State) -> IO ()
 play (b, s) = (putStr $ Board.show b) >> case getStatus s of
-  BlackWin -> putStr $ "Black Win !"
-  WhiteWin -> putStr $ "White Win !"
-  Draw -> putStr $ "Draw !"
+  BlackWin -> putStrLn "Black Win !"
+  WhiteWin -> putStrLn "White Win !"
+  Draw -> putStrLn "Draw !"
   _ -> do
     hSetBuffering stdout NoBuffering
-    putStr $ Side.sideMessage $ getSide s
-    input <- getLine
-    let eitherPoint = Point.fromString input
-    case (runGame (b, s)) =<< eitherPoint of
-      Right bs -> play bs
-      Left e -> (putStr $ (Prelude.show e) ++ "\n" ) >> play (b, s)
+    putStrLn $ Side.sideMessage $ getSide s
+    point <- exceptionOrPoint
+    play $ runGame (b, s) point
+
+getPoint :: IO Point
+getPoint = do
+  input <- getLine
+  pure $ Point.fromString input
+
+exceptionOrPoint :: IO Point
+exceptionOrPoint = catch getPoint
+  (\e -> do
+    let err = show (e :: IOException)
+    putStrLn err
+    getPoint
+  )

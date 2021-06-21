@@ -8,18 +8,22 @@ module Row
     fromChar,
 	) where
 
+import Control.Exception
+import Data.Char (ord, chr)
+
 import Range (Range)
 import qualified Range as Range (range, next, back, validList, toInt)
-import Data.Char (ord, chr)
-import Error
+
+data RowFormatException = RowFormatException deriving Show
+instance Exception RowFormatException
 
 newtype Row = Row Range
 	deriving (Show, Eq, Ord)
 
-fromChar :: Char -> Either Error Row
+fromChar :: Char -> Row
 fromChar c = case Range.range (ord c - ord 'A' + 1) of
-  Just r -> Right $ Row r
-  Nothing -> Left RowFormatError
+  Just r -> Row r
+  Nothing -> throw RowFormatException
 
 next :: Row -> Maybe Row
 next (Row r) = fmap Row (Range.next r)
